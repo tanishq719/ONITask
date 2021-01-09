@@ -27,11 +27,11 @@ window.addEventListener('DOMContentLoaded',event=>{
             var post_images,post_vedios;
             for(var name of post.post_images)
             {
-                post_images += `<img width="100" height="100" src="uploads/`+name+`">`
+                post_images += `<img src="uploads/`+name+`">`
             }
             for(var name of post.post_vedios)
             {
-                post_vedios += `<video width="320" height="240" controls>
+                post_vedios += `<video controls>
                 <source src="uploads/`+name+`" type="video/mp4"></vedio>`
             }
 
@@ -66,7 +66,7 @@ window.addEventListener('DOMContentLoaded',event=>{
 
     submit_post.addEventListener('click', event=>{
         const formData = new FormData();
-        formData.append('post_body', textarea.value);
+        formData.append('post_body', textarea.val());
         for(var file of image_input.files)
         {
             formData.append('images',file);
@@ -88,7 +88,6 @@ window.addEventListener('DOMContentLoaded',event=>{
                 console.log("post created!!");
                 post_area.style.display = 'none'
                 feed_list.style.display = 'flex'
-                window.location.href = "/";
             }
         })
         .catch(err=>{
