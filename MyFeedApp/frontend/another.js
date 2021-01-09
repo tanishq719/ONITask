@@ -13,7 +13,9 @@ window.addEventListener('DOMContentLoaded',event=>{
 
     post_area.style.display = 'none';
 
-    fetch("http://localhost:5000/fetchposts",{
+    initialize();
+    function initialize(){
+        fetch("http://localhost:5000/fetchposts",{
         headers:{
             "Content-Type": "application/json",
             "Accept": "application/json",
@@ -24,7 +26,7 @@ window.addEventListener('DOMContentLoaded',event=>{
     .then(data=>{
         for(var post of data['posts'])
         {
-            var post_images,post_vedios;
+            var post_images="",post_vedios="";
             for(var name of post.post_images)
             {
                 post_images += `<img src="uploads/`+name+`">`
@@ -41,13 +43,14 @@ window.addEventListener('DOMContentLoaded',event=>{
             </div>
             <div class="card-body">
               <blockquote class="blockquote mb-0">
-                <p>`+ post.post_body+`</p>
-                `+post_images+post_vedios+`
+                <p>`+ post.post_body+`</p><div class="multimedia">
+                `+post_images+post_vedios+`</div>
               </blockquote>
             </div>
           </div>`
         }
     })
+}
 
     create_post.addEventListener('click', event=>{
         post_area.style.display = 'flex';
@@ -66,7 +69,7 @@ window.addEventListener('DOMContentLoaded',event=>{
 
     submit_post.addEventListener('click', event=>{
         const formData = new FormData();
-        formData.append('post_body', textarea.val());
+        formData.append('post_body', textarea[0].value);
         for(var file of image_input.files)
         {
             formData.append('images',file);
@@ -88,6 +91,7 @@ window.addEventListener('DOMContentLoaded',event=>{
                 console.log("post created!!");
                 post_area.style.display = 'none'
                 feed_list.style.display = 'flex'
+                initialize();
             }
         })
         .catch(err=>{
@@ -97,5 +101,6 @@ window.addEventListener('DOMContentLoaded',event=>{
 
     logout.addEventListener('click',event=>{
         localStorage['token'] = '';
+        window.location.href = '/';
     })
 })
