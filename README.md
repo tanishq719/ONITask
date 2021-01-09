@@ -17,6 +17,6 @@
 <br>
 
 # Regarding Database Connection
-Data base used is Postgres
-in db.js in password field database password need to be put in.
+Database used is Postgres.<br>
+In db.js, password for database need to be put in.
 
