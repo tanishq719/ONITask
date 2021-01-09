@@ -1,0 +1,22 @@
+#post{
+    display: flex;
+    flex-direction: column;
+    padding: 20px 100px;
+}
+
+#post button{
+    margin:auto;
+}
+
+#post input{
+    display:none;
+}
+#post label{
+    padding:5px;
+    margin:5px;
+    border:solid;
+    width:fit-content;
+    border-radius:5px;
+    border-width:2px;
+    border-color:coral;
+}
