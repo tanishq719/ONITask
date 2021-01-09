@@ -134,7 +134,7 @@ app.post("/createpost",verifyToken, upload.fields([{name:'images',maxCount:10},{
             console.log(imageFileNames)
             console.log(vedioFileNames)
 
-            pool.query("INSERT INTO post(post_body,post_images,post_vedios,email_id) VALUES($1,$2,$3,$4)",[req.body.post_body,imageFileNames,vedioFileNames,authData.user.email_id])
+            pool.query("INSERT INTO post(post_body,post_images,post_vedios,email_id) VALUES($1,$2,$3,$4)",[req.body.post_body,imageFileNames,vedioFileNames,authData.nuser.email_id])
             .then(()=>{
                 res.sendStatus(201);
             })
