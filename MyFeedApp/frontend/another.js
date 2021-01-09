@@ -1,22 +1,22 @@
-const { json } = require("express");
-
-windows.addEventListener('DOMContentLoaded',event=>{
+window.addEventListener('DOMContentLoaded',event=>{
     var create_post = document.getElementById('create-post');
     var logout = document.getElementById('logout')
     var post_area = document.getElementById('post')
     var feed_list = document.getElementById('feed-list');
     var textarea = document.getElementsByTagName('textarea');
     var image_input = document.getElementById('insert_image');
-    var vedio_input = document.getElementById('insert_vedio')
+    var vedio_input = document.getElementById('insert_vedios')
     var submit_post = document.getElementById('submit-post')
     var image_names = document.getElementById('image_names')
     var vedio_names = document.getElementById('vedio_names')
 
 
-    post_area.style.display = none;
+    post_area.style.display = 'none';
 
-    fetch("http://locahost:5000/fetchposts",{
+    fetch("http://localhost:5000/fetchposts",{
         headers:{
+            "Content-Type": "application/json",
+            "Accept": "application/json",
             "Authorization": 'Bearer '+localStorage['token']
         }
     })
@@ -24,15 +24,15 @@ windows.addEventListener('DOMContentLoaded',event=>{
     .then(data=>{
         for(var post of data['posts'])
         {
-            var post_image,post_vedios;
+            var post_images,post_vedios;
             for(var name of post.post_images)
             {
-                post_images += `<img src="uploads/`+name+`">`
+                post_images += `<img width="100" height="100" src="uploads/`+name+`">`
             }
             for(var name of post.post_vedios)
             {
-                post_images += `<video width="320" height="240" controls>
-                <source src="uploads/`+name+` type="video/mp4"></vedio>`
+                post_vedios += `<video width="320" height="240" controls>
+                <source src="uploads/`+name+`" type="video/mp4"></vedio>`
             }
 
             feed_list.innerHTML += `<div class="card">
@@ -56,12 +56,12 @@ windows.addEventListener('DOMContentLoaded',event=>{
 
     image_input.addEventListener('change', event=>{
         for(var file of image_input.files)
-            image_input.innerText += file.filename
+            image_names.innerText += file.name
     })
 
     vedio_input.addEventListener('change', event=>{
         for(var file of vedio_input.files)
-            vedio_input.innerText += file.filename
+            vedio_names.innerText += file.name
     })
 
     submit_post.addEventListener('click', event=>{
@@ -86,7 +86,9 @@ windows.addEventListener('DOMContentLoaded',event=>{
             if(res.status == 201)
             {
                 console.log("post created!!");
-                windows.location.href = "/";
+                post_area.style.display = 'none'
+                feed_list.style.display = 'flex'
+                window.location.href = "/";
             }
         })
         .catch(err=>{
