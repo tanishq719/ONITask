@@ -107,13 +107,13 @@ app.post("/createpost",verifyToken, upload.fields([{name:'images',maxCount:10},{
             console.log(authData)
             var imageFileNames = [];
             var vedioFileNames = [];
-            if(req.files['images'].length > 0)
+            if(req.files['images'].length !== undefined)
             {
                 for(var filemetadata of req.files['images']){
                     imageFileNames.push(filemetadata['filename'])
                 }
             }
-            if(req.files['vedios'].length > 0)
+            if(req.files['vedios'] !== undefined)
             {
                 for(var filemetadata of req.files['vedios']){
                     vedioFileNames.push(filemetadata['filename'])
@@ -144,7 +144,7 @@ app.get("/fetchposts",verifyToken,(req,res)=>{
             res.sendStatus(403);
         }
         else{ 
-            pool.query("SELECT * FROM post",(err,result)=>{
+            pool.query("SELECT * FROM post ORDER BY post_id DESC LIMIT 10",(err,result)=>{
                 if(err){
                     console.log(err);
                     res.sendStatus(400);
@@ -186,7 +186,26 @@ function verifyToken(req,res,next){
 }
 
 //search post
-
+app.get("/searchposts/tag=:tag",verifyToken,(req,res)=>{
+    jwt.verify(req.token, "secretkey",(err,authData)=>{
+        if(err){
+            console.log("inside jwt verify")
+            res.sendStatus(403);
+        }
+        else{ 
+            console.log(req.params.tag)
+            pool.query("SELECT * FROM post WHERE post_body LIKE '%"+req.params.tag+"%' ORDER BY post_id DESC LIMIT 10;",(err,result)=>{
+                if(err){
+                    console.log(err);
+                    res.sendStatus(400);
+                }
+                else if(result.rows.length > 0){
+                    console.log("inside resultset")
+                    res.status(201).json({posts:result.rows});
+                }
+            })
+        }})
+});
 
 app.listen(5000, ()=>{
     console.log("app is listening on port 5000...")

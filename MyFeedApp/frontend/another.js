@@ -9,7 +9,9 @@ window.addEventListener('DOMContentLoaded',event=>{
     var submit_post = document.getElementById('submit-post')
     var image_names = document.getElementById('image_names')
     var vedio_names = document.getElementById('vedio_names')
-
+    var search_bar = document.getElementById('search-bar')
+    var search_button = document.getElementById('search-button')
+    var cancel_post = document.getElementById('cancle-post')
 
     post_area.style.display = 'none';
 
@@ -24,6 +26,7 @@ window.addEventListener('DOMContentLoaded',event=>{
     })
     .then(res=>res.json())
     .then(data=>{
+        feed_list.innerHTML = ""
         for(var post of data['posts'])
         {
             var post_images="",post_vedios="";
@@ -97,6 +100,51 @@ window.addEventListener('DOMContentLoaded',event=>{
         .catch(err=>{
             console.log(err);
         })
+    })
+
+    search_button.addEventListener('click',event=>{
+        event.preventDefault();
+        fetch('http://localhost:5000/searchposts/'+ new URLSearchParams({
+            tag:search_bar.value
+        }),{
+            headers:{
+                'Authorization':'Bearer '+localStorage['token']
+            }
+        })
+        .then(res=>res.json())
+        .then(data=>{
+            feed_list.innerHTML = ""
+            for(var post of data['posts'])
+            {
+                var post_images="",post_vedios="";
+                for(var name of post.post_images)
+                {
+                    post_images += `<img src="uploads/`+name+`">`
+                }
+                for(var name of post.post_vedios)
+                {
+                    post_vedios += `<video controls>
+                    <source src="uploads/`+name+`" type="video/mp4"></vedio>`
+                }
+
+                    feed_list.innerHTML += `<div class="card">
+                    <div class="card-header">
+                    `+post.email_id+`
+                    </div>
+                    <div class="card-body">
+                    <blockquote class="blockquote mb-0">
+                        <p>`+ post.post_body+`</p><div class="multimedia">
+                        `+post_images+post_vedios+`</div>
+                    </blockquote>
+                    </div>
+                </div>`
+                }
+    })
+    })
+
+    cancel_post.addEventListener('click',event=>{
+        post_area.style.display = 'none';
+        feed_list.style.display = 'flex';
     })
 
     logout.addEventListener('click',event=>{

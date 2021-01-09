@@ -7,7 +7,7 @@
 }
 
 #post button{
-    margin:auto;
+    margin:5px auto;
 }
 
 #post input{
@@ -27,6 +27,8 @@
     width: 50%;
     margin: auto;
     padding: 10px;
+    display:flex;
+    flex-direction: column;
 }
 
 .card{
@@ -58,4 +60,11 @@
 blockquote{
     display:flex;
     flex-direction: column;
+}
+
+blockquote p{
+    white-space: pre-wrap;
+    word-break: break-all;
+    margin: 0;
+    width: auto;
 }
