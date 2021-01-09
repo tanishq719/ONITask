@@ -1,8 +1,9 @@
 const Pool = require("pg").Pool
+const password = require("./password")
 
 const pool = new Pool({
     user: "postgres",
-    password: "tanishq719",
+    password: password,
     host: "localhost",
     port: 5432,
     database: "myfeedapp"

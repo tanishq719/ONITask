@@ -17,6 +17,8 @@ window.addEventListener('DOMContentLoaded',event=>{
 
     initialize();
     function initialize(){
+
+        //fetching posts
         fetch("http://localhost:5000/fetchposts",{
         headers:{
             "Content-Type": "application/json",
@@ -26,14 +28,19 @@ window.addEventListener('DOMContentLoaded',event=>{
     })
     .then(res=>res.json())
     .then(data=>{
+
+        // inserting the post with its HTML
+
         feed_list.innerHTML = ""
         for(var post of data['posts'])
         {
             var post_images="",post_vedios="";
+            // iterating over images of a post
             for(var name of post.post_images)
             {
                 post_images += `<img src="uploads/`+name+`">`
             }
+            // iterating over vedios of a post
             for(var name of post.post_vedios)
             {
                 post_vedios += `<video controls>
@@ -55,22 +62,28 @@ window.addEventListener('DOMContentLoaded',event=>{
     })
 }
 
+    // opening create post section
     create_post.addEventListener('click', event=>{
         post_area.style.display = 'flex';
         feed_list.style.display = 'none';
     })
 
+    // for inserting images while creating post
     image_input.addEventListener('change', event=>{
         for(var file of image_input.files)
             image_names.innerText += file.name
     })
 
+    // for inserting vedios while creating post
     vedio_input.addEventListener('change', event=>{
         for(var file of vedio_input.files)
             vedio_names.innerText += file.name
     })
 
+    // submitting the post to the server
     submit_post.addEventListener('click', event=>{
+
+        // creating the form data as we cant use form for sending Authorization token
         const formData = new FormData();
         formData.append('post_body', textarea[0].value);
         for(var file of image_input.files)
@@ -102,6 +115,7 @@ window.addEventListener('DOMContentLoaded',event=>{
         })
     })
 
+    // for getting the post containg the searched tag
     search_button.addEventListener('click',event=>{
         event.preventDefault();
         fetch('http://localhost:5000/searchposts/'+ new URLSearchParams({
@@ -142,11 +156,13 @@ window.addEventListener('DOMContentLoaded',event=>{
     })
     })
 
+    // for canceling the create post section
     cancel_post.addEventListener('click',event=>{
         post_area.style.display = 'none';
         feed_list.style.display = 'flex';
     })
 
+    // for logging out by clearing the token from the local storage
     logout.addEventListener('click',event=>{
         localStorage['token'] = '';
         window.location.href = '/';

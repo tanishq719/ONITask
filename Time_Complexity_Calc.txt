@@ -1,0 +1,23 @@
+Q1)
+Input size: N, where is N is the number of Nodes in the input tree
+
+Recurrence Relation: T(n) = 2*T(n/2) + 1
+Base case: T(1) = 1
+
+Solving for k times:
+
+T(n) = (2^k)*T(n/2^k) + summation(2^i) | i=0 to k
+let n/2^k = 1
+therefore, k = log(n)   {base 2}
+
+therefore, T(n) = n.T(1) + summation(2^i) | i=0 to log(n)
+=> T(n) = n + (2^log(n) - 1)        {sum of GP}
+=> T(n) = n + n - 1
+=> T(n) = O(n)
+
+==========================================================
+Q2)
+
+Input size: m + n, where m and n are the sizes given arrays
+
+As array A is traversed to full length at worst case thus complexity is O(m+n).

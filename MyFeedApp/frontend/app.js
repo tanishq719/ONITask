@@ -14,12 +14,13 @@ window.addEventListener('DOMContentLoaded', event=>{
 
     login.style.display = "none";
 
-    
+    //opening signup section
     signup_section.addEventListener('click',event=>{
         signup.style.display = "flex";
         login.style.display = "none";
     });
 
+    //signing the user in
     signup_button.addEventListener('click',event=>{
         fetch("http://localhost:5000/signup",{
             method: "POST",
@@ -52,6 +53,7 @@ window.addEventListener('DOMContentLoaded', event=>{
                         }
                     })
                     .then(body=>{
+                        // if signed in
                         window.location.href="./feed.html"
                     })
                 })
@@ -64,11 +66,13 @@ window.addEventListener('DOMContentLoaded', event=>{
         })
     });
     
+    // opening the login section
     login_section.addEventListener('click',event=>{
         signup.style.display = "none";
         login.style.display = "flex";
     });
 
+    // logging in the user
     login_button.addEventListener('click',event=>{
         fetch("http://localhost:5000/login",{
             method: "POST",
@@ -86,10 +90,14 @@ window.addEventListener('DOMContentLoaded', event=>{
             if(res.status == 201){
                 console.log("inside if");
                 res.json().then(body=>{
+                    
+                    //storing the token in localstorage
                     localStorage['token'] = body.token;
                 }).then(()=>{
                     console.log("inside if then");
                     console.log(localStorage['token']);
+                    
+                    // fetching for posts
                     fetch("http://localhost:5000/viewpost",{
                         headers:{
                             "Content-Type": "application/json",

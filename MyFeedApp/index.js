@@ -9,14 +9,17 @@ const multer = require('multer')
 const path = require('path')
 
 
+// setting storage for upload files like images and vedios
 const storage = multer.diskStorage({
     destination: "uploads/",
     filename: function(req, file, cb){
         console.log("inside filename");
+        // naming files by appending the current datetime
         cb(null,file.fieldname + '-' + Date.now() + path.extname(file.originalname));
     }
 })
 
+// assinging storage
 const upload = multer({
     storage: storage
 })
@@ -30,7 +33,7 @@ app.use(express.json())
 
 // routes
 
-// index(
+// index
 app.get("/",(req,res)=>{
     res.sendFile('./frontend/index.html',{root:__dirname});
 })
@@ -42,15 +45,20 @@ app.get("/uploads/:id",(req,res)=>{
 
 // signup 
 app.post("/signup",async (req,res)=>{
+
+    // checking for confirm password
     if(req.body.password !== req.body.confirm_password)
         req.sendStatus(403).json({message:"confirm password doesnt match"})
     else{
         try{
             const {first_name,last_name,email_id,password,confirm_password} = req.body;
+            // encrypting password
             var hashPassword = await bcrypt.hash(password,10);
-            pool.query("INSERT INTO nuser VALUES($1,$2,$3,$4)",[first_name,last_name,email_id,hashPassword])
+            // inserting the user data
+            pool.query("INSERT INTO nuser VALUES($1,$2,$3,$4)",[email_id,first_name,last_name,hashPassword])
             .then(()=>{
                 const user = {first_name,last_name,email_id};
+                // after successful insert, jwt token is generated which will help in further autorization
                 jwt.sign({user},"secretkey",(err,token)=>{
                     res.status(201).json({
                         token:token
@@ -67,11 +75,13 @@ app.post("/signup",async (req,res)=>{
 
 // login
 app.post('/login',async (req,res)=>{
+    // retriving user info
     pool.query("SELECT * FROM nuser WHERE email_id = $1",[req.body.email_id],(err,result)=>{
         if(err)
             res.status(403).json({msg:"wrong password"})
         else if(result.rows.length > 0){
             var user = result.rows[0];
+            // matching the provided password and the persisted encrypted password
             bcrypt.compare(req.body.password,user.password,(err,isMatch)=>{
                 if(err || !isMatch)
                     res.status(403).json({msg:"wrong password"});
@@ -80,6 +90,7 @@ app.post('/login',async (req,res)=>{
                     var last_name = user.last_name;
                     var email_id = user.email_id;
                     var nuser = {first_name,last_name,email_id};
+                    // responding with jwt token which will help in further authorization
                     jwt.sign({nuser},"secretkey",(err,token)=>{
                         res.status(201).json({
                             token:token
@@ -95,6 +106,8 @@ app.post('/login',async (req,res)=>{
 });
 
 //create post
+// upload middleware find for images and vedios field in body of request
+// and stores it into upload folder
 app.post("/createpost",verifyToken, upload.fields([{name:'images',maxCount:10},{name:'vedios',maxCount:10}]),(req,res)=>{
     jwt.verify(req.token, "secretkey",(err,authData)=>{
         if(err){
@@ -102,8 +115,7 @@ app.post("/createpost",verifyToken, upload.fields([{name:'images',maxCount:10},{
             res.sendStatus(403);
         }
         else{   
-            console.log(req)
-            console.log(req.files);
+            // making entry in database about the file names of images and vedios
             console.log(authData)
             var imageFileNames = [];
             var vedioFileNames = [];
@@ -122,7 +134,7 @@ app.post("/createpost",verifyToken, upload.fields([{name:'images',maxCount:10},{
             console.log(imageFileNames)
             console.log(vedioFileNames)
 
-            pool.query("INSERT INTO post(post_body,post_images,post_vedios,email_id) VALUES($1,$2,$3,$4)",[req.body.post_body,imageFileNames,vedioFileNames,authData.nuser.email_id])
+            pool.query("INSERT INTO post(post_body,post_images,post_vedios,email_id) VALUES($1,$2,$3,$4)",[req.body.post_body,imageFileNames,vedioFileNames,authData.user.email_id])
             .then(()=>{
                 res.sendStatus(201);
             })
@@ -134,7 +146,6 @@ app.post("/createpost",verifyToken, upload.fields([{name:'images',maxCount:10},{
     })
 });
 
-// delete post
 
 //fetch post
 app.get("/fetchposts",verifyToken,(req,res)=>{
@@ -157,6 +168,7 @@ app.get("/fetchposts",verifyToken,(req,res)=>{
 });
 
 //view post
+// after login or signup feed.html will be provided, else non authorized user cant access it
 app.get("/viewpost",verifyToken, (req,res)=>{
     jwt.verify(req.token, "secretkey",(err,authData)=>{
         if(err){
@@ -169,6 +181,8 @@ app.get("/viewpost",verifyToken, (req,res)=>{
     })
 })
 
+
+// checking the Authorization field in request headers
 function verifyToken(req,res,next){
     // console.log(req.headers);
     const bearerHeader = req.headers['authorization'];
@@ -186,6 +200,7 @@ function verifyToken(req,res,next){
 }
 
 //search post
+// gice the posts which containg the given tag
 app.get("/searchposts/tag=:tag",verifyToken,(req,res)=>{
     jwt.verify(req.token, "secretkey",(err,authData)=>{
         if(err){
@@ -202,6 +217,9 @@ app.get("/searchposts/tag=:tag",verifyToken,(req,res)=>{
                 else if(result.rows.length > 0){
                     console.log("inside resultset")
                     res.status(201).json({posts:result.rows});
+                }
+                else{
+                    res.status(201).json({})
                 }
             })
         }})
